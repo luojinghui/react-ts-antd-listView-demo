@@ -1,20 +1,17 @@
 
 import * as React from 'react';
-import Home from './components/home';
+import Home from './view/index';
 
 interface IProps {
-  id: string
+  name: string
 }
 
-const App: React.FC<IProps> = ({id}) => {
+const App: React.FC<IProps> = ({name}) => {
   return (
     <div className="App">
       <header className="App-header">
-        <div>id: {id}</div>
+        <div>{name}</div>
         <Home id="123"></Home>
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
       </header>
     </div>
   );
