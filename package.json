@@ -7,14 +7,18 @@
     "@types/node": "^12.6.3",
     "@types/react": "^16.8.23",
     "@types/react-dom": "^16.8.4",
+    "add": "^2.0.6",
     "antd": "^3.20.7",
+    "antd-mobile": "^2.2.14",
     "babel-plugin-import": "^1.12.0",
     "customize-cra": "^0.4.1",
     "react": "^16.8.6",
     "react-app-rewired": "^2.1.3",
     "react-dom": "^16.8.6",
+    "react-infinite-scroller": "^1.2.4",
     "react-scripts": "3.0.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "yarn": "^1.17.3"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -36,5 +40,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "less-loader": "^5.0.0"
   }
 }

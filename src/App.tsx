@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import Home from './view/index';
+// import Test from './view/test';
 
 interface IProps {
   name: string
@@ -9,10 +10,8 @@ interface IProps {
 const App: React.FC<IProps> = ({name}) => {
   return (
     <div className="App">
-      <header className="App-header">
-        <div>{name}</div>
-        <Home id="123"></Home>
-      </header>
+      <Home id="123"></Home>
+      {/* <Test id="123"></Test> */}
     </div>
   );
 }

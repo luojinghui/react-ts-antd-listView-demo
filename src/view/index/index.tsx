@@ -1,27 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Input } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+// import { Input } from 'antd';
+/* eslint no-dupe-keys: 0 */
+import { ListView, SearchBar } from 'antd-mobile';
 
-interface IPage {
-  page: number;
-  total: number;
-  arr: number[]
+type IPage = IItem[];
+
+interface IItem {
+  number: number;
+  name: string;
 }
 
-function getData(page = 0, size = 10): Promise<IPage> {
+interface IData {
+  data: IItem[],
+  total: number
+}
+
+const NUM_ROWS = 20;
+
+function getData(page = 0, size = 10): Promise<IData> {
   return new Promise((resolve) => {
     setTimeout(() => {
       const arr = [];
 
       for (let i = 0; i < size; i++) {
+        const index = (page * size) + i;
         const random = Math.ceil(Math.random() * 100000);
 
-        arr.push(random);
+        arr.push({
+          number: random,
+          name: "name: " + index
+        });
       }
 
       resolve({
-        page,
-        total: 100,
-        arr: arr
+        total: 5,
+        data: arr
       });
     }, 1000);
   })
@@ -33,35 +46,109 @@ export interface IAppProps {
 
 export default function Home({ id }: IAppProps) {
   // const [ count ] = React.useState<number | string>(1);
-  const [page] = useState(0);
+  const dataSource = new ListView.DataSource({
+    rowHasChanged: (row1: any, row2: any) => row1 !== row2,
+  });
+
+  const ref = useRef(null);
+
+  const [page, setPage] = useState(0);
+  const [list, setList] = useState<IPage>(dataSource);
+  const [totalPage, setTotalPage] = useState(0);
+
   const [loading, setLoading] = useState(true);
-  const [list, setList] = useState<IPage>({
-    page: 0,
+  const [hasMore] = useState(false);
+
+  const cacheData = useRef({
     total: 0,
-    arr: []
+    data: [] as IItem[]
   });
 
   const onChangeInput = (value: string) => {
     console.log("onChangeInput: ", value);
   }
 
-  const getInitData = async () => {
-    const result = await getData(0, 10);
-
-    console.log("reuslt:", result);
-    setLoading(false);
-    setList(result);
-  }
-
   useEffect(() => {
-    getInitData();
+    async function getInitData() {
+      const { data, total } = await getData(page, NUM_ROWS);
+      cacheData.current = {
+        total,
+        data: cacheData.current.data.concat(data)
+      }
 
-  }, []);
+      setLoading(false);
+      setTotalPage(cacheData.current.total);
+      setList((preList: IPage) => {
+        // @ts-ignore
+        return preList.cloneWithRows(cacheData.current.data)
+      });
+    }
+
+    getInitData();
+  }, [page]);
 
   const renderList = () => {
-    return list.arr.map((item: number) => (
-      <div key={item} className="item">number: {item}</div>
-    ))
+    const row = (rowData: any, sectionID: any, rowID: any) => {
+      console.log("rowData: ", rowData);
+      return (
+        <div key={rowID} className="item" >
+          data: {rowData.number + "   " + rowData.name}
+          -----sectionID: {sectionID}
+          -----rowID: {rowID}
+        </div>
+      );
+    };
+
+    async function onEndReached(event: any) {
+
+      // load new data
+      // hasMore: from backend data, indicates whether it is the last page, here is false
+      if (loading && !hasMore) {
+        return;
+      }
+
+      console.log("data end : ", event);
+      if(page <= totalPage) {
+        setPage(page + 1);
+      }
+
+      // console.log('reach end', event);
+      // setLoading(true);
+
+      // // setTimeout(() => {
+      // //   this.rData = { ...this.rData, ...genData(++pageIndex) };
+      // //   this.setState({
+      // //     dataSource: this.state.dataSource.cloneWithRows(this.rData),
+      // //     isLoading: false,
+      // //   });
+      // // }, 1000);
+
+      // const result = await getData(1, 10);
+
+      // setLoading(false);
+      // const newArr: any = [...cacheArr, result.arr];
+
+      // console.log("newArr: ", newArr);
+    }
+
+    return (
+      <ListView
+        ref={ref}
+        dataSource={list}
+        renderHeader={() => <span>header</span>}
+        renderFooter={() => (<div style={{ padding: 30, textAlign: 'center' }}>
+          {loading ? 'Loading...' : 'Loaded'}
+        </div>)}
+        renderRow={row}
+        className="list"
+        pageSize={4}
+        useBodyScroll
+        onScroll={() => { console.log('scroll'); }}
+        scrollRenderAheadDistance={500}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={40}
+      />
+    )
   }
 
   return (
@@ -70,9 +157,7 @@ export default function Home({ id }: IAppProps) {
       <div className="box">
         <div className="list">
           {
-            loading ?
-              <div>loading...</div> :
-              renderList()
+            renderList()
           }
         </div>
       </div>
@@ -83,14 +168,10 @@ export default function Home({ id }: IAppProps) {
   );
 }
 
-function InputComp({ onChange }: {
+function InputComp(param: {
   onChange: (value: string) => void;
 }) {
-  const { Search } = Input;
 
-  const onChangeInput = (value: string) => {
-    onChange(value);
-  }
-
-  return <Search placeholder="input search text" allowClear={true} onSearch={onChangeInput} enterButton />
+  // return <Search placeholder="input search text" allowClear={true} onSearch={onChangeInput} enterButton />
+  return <SearchBar placeholder="Search" maxLength={8} />
 }

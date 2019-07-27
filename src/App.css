@@ -1,28 +1,38 @@
 .App {
   text-align: center;
+  height: 100%; 
+}
+
+#root, html, body {
+  height: 100%;
 }
 
 .content {
-  height: 500px; 
+  height: 100%; 
   width: 600px;
   max-width: 600px;
   background-color: aliceblue;
   margin: 0 auto;
-  overflow: auto;
   position: relative;
+  padding-bottom: 30px;
 }
 
 .box {
-  padding: 20px;
+  padding: 0 20px;
+  height: 100%;
+}
+
+.list {
+  height: 100%;
 }
 
 .item {
   border-bottom: 1px solid #eee;
-  padding: 5px;
+  padding: 20px 0;
 }
 
 .footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
