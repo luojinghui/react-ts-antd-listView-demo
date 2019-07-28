@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-// import { Input } from 'antd';
-/* eslint no-dupe-keys: 0 */
 import { ListView, SearchBar } from 'antd-mobile';
 
 type IPage = IItem[];
@@ -33,7 +31,7 @@ function getData(page = 0, size = 10): Promise<IData> {
       }
 
       resolve({
-        total: 5,
+        total: 3,
         data: arr
       });
     }, 1000);
@@ -47,7 +45,7 @@ export interface IAppProps {
 export default function Home({ id }: IAppProps) {
   // const [ count ] = React.useState<number | string>(1);
   const dataSource = new ListView.DataSource({
-    rowHasChanged: (row1: any, row2: any) => row1 !== row2,
+    rowHasChanged: (row1: any, row2: any) => row1 !== row2
   });
 
   const ref = useRef(null);
@@ -55,7 +53,6 @@ export default function Home({ id }: IAppProps) {
   const [page, setPage] = useState(0);
   const [list, setList] = useState<IPage>(dataSource);
   const [totalPage, setTotalPage] = useState(0);
-
   const [loading, setLoading] = useState(true);
   const [hasMore] = useState(false);
 
@@ -78,8 +75,7 @@ export default function Home({ id }: IAppProps) {
 
       setLoading(false);
       setTotalPage(cacheData.current.total);
-      setList((preList: IPage) => {
-        // @ts-ignore
+      setList((preList: any) => {
         return preList.cloneWithRows(cacheData.current.data)
       });
     }
@@ -93,7 +89,6 @@ export default function Home({ id }: IAppProps) {
       return (
         <div key={rowID} className="item" >
           data: {rowData.number + "   " + rowData.name}
-          -----sectionID: {sectionID}
           -----rowID: {rowID}
         </div>
       );
@@ -109,6 +104,7 @@ export default function Home({ id }: IAppProps) {
 
       console.log("data end : ", event);
       if(page <= totalPage) {
+        setLoading(true);
         setPage(page + 1);
       }
 
