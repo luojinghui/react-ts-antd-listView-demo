@@ -29,17 +29,17 @@ function getData(page = 0, size = 20, search: string = ""): Promise<IData> {
   })
 }
 
-export default function useListData(searchValue: string = ""): any {
+export default function useListData(): any {
   const dataSource = new ListView.DataSource({
     rowHasChanged: (row1: any, row2: any) => row1 !== row2
   });
   const [list, setList] = useState<IPage>(dataSource);
   const [totalPage, setTotalPage] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [searchVal, setSearchVal] = useState(searchValue);
+  const [searchVal, setSearchVal] = useState("");
   const [hasMore] = useState(false);
   const [page, setPage] = useState(0);
-  let cacheValue = useRef(searchValue);
+  let cacheValue = useRef("");
 
   const cacheData = useRef({
     total: 0,
