@@ -1,21 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { ListView } from 'antd-mobile';
 import InputComp from '../../components/input';
-
-type IPage = IItem[];
-
-interface IItem {
-  number: string;
-  name: string;
-  random: number;
-}
-
-interface IData {
-  data: IItem[],
-  total: number
-}
-
-const NUM_ROWS = 20;
+import useListData from '../../components/list';
 
 export interface IAppProps {
   id: string;
@@ -25,18 +11,18 @@ export default function Home(prams: IAppProps) {
   const cachePage = useRef(0);
   const cacheSearchPage = useRef(0);
   const cacheSearchVal = useRef("");
-
+  const listRef: any = useRef();
+  const searchListRef: any = useRef();
   const [search, setSearch] = useState("");
-
-  const [{ list, loading, hasMore, totalPage, page }, setNewData, setPage] = useListData("");
+  const [{ list, loading, hasMore, totalPage, page }, setNewData, setPage] = useListData();
   const [{
     list: searchList,
     loading: searchLoading,
     hasMore: searchHasMore,
     totalPage: searchTotalPage,
     page: searchPage
-  }, setNewSearchData, setSearchPage] = useListData("");
-
+  }, setNewSearchData, setSearchPage] = useListData();
+  
   const onSubmitInput = (value: string) => {
     setSearch(value);
     cacheSearchVal.current = value;
@@ -51,12 +37,18 @@ export default function Home(prams: IAppProps) {
   const onCancelInput = () => {
     setSearch("");
     cacheSearchVal.current = "";
-
     cacheSearchPage.current = 0;
 
-    // setNewData("", cachePage.current);
     setNewSearchData("", cacheSearchPage.current);
   }
+
+  useLayoutEffect(() => {
+    if(search) {
+      searchListRef.current && searchListRef.current.scrollTo(0, 0);
+    } else {
+      listRef.current && listRef.current.scrollTo(0, 0);
+    }
+  }, [search])
 
   const renderList = () => {
     const row = (rowData: any, sectionID: any, rowID: any) => {
@@ -67,7 +59,7 @@ export default function Home(prams: IAppProps) {
       );
     };
 
-    async function onEndReached(event: any) {
+    async function onEndReached() {
       if (cacheSearchVal.current) {
         if (searchLoading && !searchHasMore) {
           return;
@@ -95,8 +87,9 @@ export default function Home(prams: IAppProps) {
 
     if (search) {
       return <ListView
+        ref={searchListRef}
         dataSource={searchList}
-        renderHeader={() => <span>header</span>}
+        renderHeader={() => <span>search header</span>}
         renderFooter={() => (<div style={{ padding: 30, textAlign: 'center' }}>
           {searchLoading ? 'Loading...' : 'Loaded'}
         </div>)}
@@ -109,10 +102,12 @@ export default function Home(prams: IAppProps) {
         onEndReachedThreshold={40}
       />
     }
+
     return <div style={{ display: search ? "none" : "block" }}>
       <ListView
+        ref={listRef}
         dataSource={list}
-        renderHeader={() => <span>header111</span>}
+        renderHeader={() => <span>header</span>}
         renderFooter={() => (<div style={{ padding: 30, textAlign: 'center' }}>
           {loading ? 'Loading...' : 'Loaded'}
         </div>)}
@@ -129,7 +124,9 @@ export default function Home(prams: IAppProps) {
 
   return (
     <div className="content">
-      <InputComp onSubmit={onSubmitInput} onCancel={onCancelInput} />
+      <div className="search-box">
+        <InputComp onSubmit={onSubmitInput} onCancel={onCancelInput} />
+      </div>
 
       <div className="box">
         <div className="list">
@@ -144,81 +141,4 @@ export default function Home(prams: IAppProps) {
       </div>
     </div>
   );
-}
-
-function getData(page = 0, size = 20, search: string = ""): Promise<IData> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const arr = [];
-
-      for (let i = 0; i < size; i++) {
-        const index = (page * size) + i;
-        const random = Math.ceil(Math.random() * 1000000);
-
-        arr.push({
-          random,
-          number: `search: ${search}`,
-          name: `name: ${index}`
-        });
-      }
-
-      resolve({
-        total: 3,
-        data: arr
-      });
-    }, 1000);
-  })
-}
-
-function useListData(searchValue: string = ""): any {
-  const dataSource = new ListView.DataSource({
-    rowHasChanged: (row1: any, row2: any) => row1 !== row2
-  });
-  const [list, setList] = useState<IPage>(dataSource);
-  const [totalPage, setTotalPage] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [searchVal, setSearchVal] = useState(searchValue);
-  const [hasMore] = useState(false);
-  const [page, setPage] = useState(0);
-  let cacheValue = useRef(searchValue);
-
-  const cacheData = useRef({
-    total: 0,
-    data: [] as IItem[]
-  });
-
-  function setNewData(val: string, page: number) {
-    setPage(page);
-    setSearchVal(val);
-  }
-
-  useEffect(() => {
-    if (searchVal !== cacheValue.current) {
-      cacheData.current.data = [];
-    }
-  }, [searchVal]);
-
-  useEffect(() => {
-    setLoading(true);
-
-    async function getInitData() {
-      const { data, total } = await getData(page, NUM_ROWS, searchVal);
-      cacheValue.current = searchVal;
-
-      cacheData.current = {
-        total,
-        data: cacheData.current.data.concat(data)
-      }
-
-      setLoading(false);
-      setTotalPage(cacheData.current.total);
-      setList((preList: any) => {
-        return preList.cloneWithRows(cacheData.current.data)
-      });
-    }
-
-    getInitData();
-  }, [page, searchVal]);
-
-  return [{ list, loading, hasMore, totalPage, page }, setNewData, setPage];
 }
