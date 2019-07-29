@@ -11,7 +11,7 @@ function getData(page = 0, size = 20, search: string = ""): Promise<IData> {
       const arr = [];
 
       for (let i = 0; i < size; i++) {
-        const index = (page * size) + i;
+        const index = (page * size) + i + 1;
         const random = Math.ceil(Math.random() * 1000000);
 
         arr.push({
@@ -39,7 +39,7 @@ export default function useListData(): any {
   const [searchVal, setSearchVal] = useState("");
   const [hasMore] = useState(false);
   const [page, setPage] = useState(0);
-  let cacheValue = useRef("");
+  const cacheValue = useRef("");
 
   const cacheData = useRef({
     total: 0,

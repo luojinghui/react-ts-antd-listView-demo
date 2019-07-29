@@ -50,11 +50,11 @@ export default function Home(prams: IAppProps) {
     }
   }, [search])
 
-  const renderList = () => {
+  function renderList() {
     const row = (rowData: any, sectionID: any, rowID: any) => {
       return (
         <div key={rowData.random} className="item" >
-          {rowData.number + "   " + rowData.name} ---rowID: {rowID}
+          {`${rowData.number}---${rowData.name}---rowId: ${rowID + 1}`}
         </div>
       );
     };
