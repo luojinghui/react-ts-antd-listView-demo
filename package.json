@@ -18,7 +18,7 @@
     "react-infinite-scroller": "^1.2.4",
     "react-scripts": "3.0.1",
     "typescript": "^3.5.3",
-    "yarn": "^1.17.3"
+    "yarn": "^1.22.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
